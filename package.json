@@ -19,6 +19,7 @@
     "wagmi": "^3.4.1"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.30",
     "@types/react": "^19",
