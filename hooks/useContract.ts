@@ -2,7 +2,7 @@
 import { useWriteContract, useReadContract, useAccount } from 'wagmi';
 import { parseAbiItem } from 'viem';
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
+const CONTRACT_ADDRESS = '0x53A58b739C78f46bcDafcD033b03661B11eC5121' as `0x${string}`;
 
 const CONTRACT_ABI = [
   parseAbiItem('function saveProgress(string difficulty, uint8 attemptsUsed, uint8 hintsUsed, bool completed, bool won) external'),
