@@ -3,6 +3,16 @@
 import { useEffect, useState } from 'react';
 import { sdk } from '@farcaster/miniapp-sdk';
 import Game from '@/components/Game';
+
+export const metadata = {
+  other: {
+    'fc:frame': 'vNext',
+    'fc:frame:image': 'https://eldrow-ecru.vercel.app/og-image.png',
+    'fc:frame:button:1': 'Play Now',
+    'fc:frame:button:1:action': 'link',
+    'fc:frame:button:1:target': 'https://eldrow-ecru.vercel.app',
+  }
+};
 import Leaderboard from '@/components/Leaderboard';
 import { Trophy, Target, Flame, Crown } from 'lucide-react';
 import { useContract } from '@/hooks/useContract';
