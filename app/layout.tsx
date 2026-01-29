@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import './globals.css';
+import { Providers } from './provider';
 
 export const metadata: Metadata = {
   title: '⛓️ Blockchain Wordle',
@@ -16,3 +18,17 @@ export const metadata: Metadata = {
     'fc:frame:button:1:target': 'https://eldrow-ecru.vercel.app',
   },
 };
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
