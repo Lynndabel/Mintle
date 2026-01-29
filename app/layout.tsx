@@ -13,12 +13,27 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   other: {
+    // Required frame metadata
     'fc:frame': 'vNext',
-    'fc:frame:image': 'https://eldrow-ecru.vercel.app/og-image.png',
+    'fc:frame:image': 'https://eldrow-rcru.vercel.app/og-image.png',
+    
+    // Button configuration
     'fc:frame:button:1': 'Play Now',
-    'fc:frame:button:1:action': 'link',
-    'fc:frame:button:1:target': 'https://eldrow-ecru.vercel.app'
-  }
+    'fc:frame:button:1:action': 'post_redirect',
+    'fc:frame:post_url': 'https://eldrow-ecru.vercel.app/api/frame',
+    
+    // Recommended metadata for better discovery
+    'of:version': 'vNext',
+    'of:accepts:xmtp': 'vNext',
+    'of:image': 'https://eldrow-ecru.vercel.app/og-image.png',
+    'of:input:text': 'Enter your guess...',
+    'of:post_url': 'https://eldrow-ecru.vercel.app/api/frame',
+    'of:button:1': 'Play Now'
+  },
+  // Ensure proper caching for frame images
+  robots: 'noindex, nofollow',
+  // Ensure the frame is served with the correct content type
+  metadataBase: new URL('https://eldrow-ecru.vercel.app')
 };
 
 export default function RootLayout({
