@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getDailyWords, checkGuess, WordData } from '@/lib/words';
 import { useContract } from '@/hooks/useContract';
 import WordGrid from './WordGrid';
@@ -16,7 +16,6 @@ const MAX_ATTEMPTS = 6;
 const MAX_HINTS = 3;
 
 export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
-  const [targetWord, setTargetWord] = useState<WordData | null>(null);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameOver, setGameOver] = useState(false);
@@ -39,13 +38,11 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
     setShake(false);
   }, []);
 
-  // Load word for current difficulty
+  const dailyWords = useMemo(() => getDailyWords(new Date()), []);
+  const targetWord = useMemo(() => dailyWords[difficulty], [dailyWords, difficulty]);
+
+  // Reset game state when difficulty changes
   useEffect(() => {
-    const dailyWords = getDailyWords(new Date());
-    const word = dailyWords[difficulty];
-    setTargetWord(word);
-    
-    // Reset game state when difficulty changes
     resetGameState();
   }, [difficulty, resetGameState]);
 
@@ -140,14 +137,6 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
     setMessage(`💡 Position ${randomIndex + 1}: ${targetWord.word[randomIndex]}`);
     setTimeout(() => setMessage(''), 3000);
   };
-
-  if (!targetWord) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-gray-500">Loading game...</div>
-      </div>
-    );
-  }
 
   const results = guesses.map(guess => checkGuess(guess, targetWord.word));
 
