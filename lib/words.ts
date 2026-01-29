@@ -39,7 +39,7 @@ export const BLOCKCHAIN_WORDS: WordData[] = [
   { word: 'REKT', difficulty: 'easy', hint: 'Lost all money' },
   { word: 'WAGMI', difficulty: 'easy', hint: "We're all gonna make it" },
   { word: 'NGMI', difficulty: 'easy', hint: 'Not gonna make it' },
-  { word: 'DYOR', difficulty: 'easy', hint: 'Do your own research' },
+  //{ word: 'DYOR', difficulty: 'easy', hint: 'Do your own research' },
   { word: 'SHILL', difficulty: 'easy', hint: 'Promote aggressively' },
   { word: 'AAVE', difficulty: 'easy', hint: 'Lending protocol' },
   { word: 'USDT', difficulty: 'easy', hint: 'Tether stablecoin' },
