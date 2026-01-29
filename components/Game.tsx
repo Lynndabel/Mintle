@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { getDailyWords, checkGuess, WordData } from '@/lib/words';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { getDailyWords, checkGuess } from '@/lib/words';
 import { useContract } from '@/hooks/useContract';
 import WordGrid from './WordGrid';
 import Keyboard from './Keyboard';
@@ -16,7 +16,6 @@ const MAX_ATTEMPTS = 6;
 const MAX_HINTS = 3;
 
 export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
-  const [targetWord, setTargetWord] = useState<WordData | null>(null);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameOver, setGameOver] = useState(false);
@@ -28,17 +27,7 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
   
   const { saveProgress, isPending } = useContract();
 
-  // Load word for current difficulty
-  useEffect(() => {
-    const dailyWords = getDailyWords(new Date());
-    const word = dailyWords[difficulty];
-    setTargetWord(word);
-    
-    // Reset game state when difficulty changes
-    resetGameState();
-  }, [difficulty]);
-
-  const resetGameState = () => {
+  const resetGameState = useCallback(() => {
     setGuesses([]);
     setCurrentGuess('');
     setGameOver(false);
@@ -47,41 +36,14 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
     setRevealedLetters(new Set());
     setMessage('');
     setShake(false);
-  };
+  }, []);
 
-  // Keyboard event listener
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameOver || !targetWord) return;
+  const dailyWords = useMemo(() => getDailyWords(new Date()), []);
+  const targetWord = useMemo(() => dailyWords[difficulty], [dailyWords, difficulty]);
 
-      if (e.key === 'Enter') {
-        submitGuess();
-      } else if (e.key === 'Backspace') {
-        setCurrentGuess(prev => prev.slice(0, -1));
-      } else if (/^[a-zA-Z]$/.test(e.key) && currentGuess.length < targetWord.word.length) {
-        setCurrentGuess(prev => prev + e.key.toUpperCase());
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentGuess, gameOver, targetWord]);
-
-  const handleKeyPress = useCallback((key: string) => {
-    if (gameOver || !targetWord) return;
-
-    if (key === 'ENTER') {
-      submitGuess();
-    } else if (key === 'BACKSPACE') {
-      setCurrentGuess(prev => prev.slice(0, -1));
-    } else if (currentGuess.length < targetWord.word.length) {
-      setCurrentGuess(prev => prev + key);
-    }
-  }, [currentGuess, gameOver, targetWord]);
-
-  const submitGuess = async () => {
+  const submitGuess = useCallback(async () => {
     if (!targetWord) return;
-    
+
     if (currentGuess.length !== targetWord.word.length) {
       setMessage('Not enough letters!');
       setShake(true);
@@ -103,7 +65,7 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
       setWon(true);
       setGameOver(true);
       setMessage('🎉 Brilliant! You got it!');
-      
+
       // Save to blockchain
       try {
         await saveProgress(difficulty, newGuesses.length, hintsUsed, true, true);
@@ -113,7 +75,7 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
     } else if (isLastAttempt) {
       setGameOver(true);
       setMessage(`Game Over! The word was: ${targetWord.word}`);
-      
+
       // Save to blockchain
       try {
         await saveProgress(difficulty, newGuesses.length, hintsUsed, true, false);
@@ -124,7 +86,37 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
       setMessage(`${MAX_ATTEMPTS - newGuesses.length} attempts remaining`);
       setTimeout(() => setMessage(''), 2000);
     }
-  };
+  }, [currentGuess, difficulty, guesses, hintsUsed, saveProgress, targetWord]);
+
+  // Keyboard event listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (gameOver || !targetWord) return;
+
+      if (e.key === 'Enter') {
+        submitGuess();
+      } else if (e.key === 'Backspace') {
+        setCurrentGuess(prev => prev.slice(0, -1));
+      } else if (/^[a-zA-Z]$/.test(e.key) && currentGuess.length < targetWord.word.length) {
+        setCurrentGuess(prev => prev + e.key.toUpperCase());
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentGuess.length, gameOver, submitGuess, targetWord]);
+
+  const handleKeyPress = useCallback((key: string) => {
+    if (gameOver || !targetWord) return;
+
+    if (key === 'ENTER') {
+      submitGuess();
+    } else if (key === 'BACKSPACE') {
+      setCurrentGuess(prev => prev.slice(0, -1));
+    } else if (currentGuess.length < targetWord.word.length) {
+      setCurrentGuess(prev => prev + key);
+    }
+  }, [currentGuess.length, gameOver, submitGuess, targetWord]);
 
   const useHint = () => {
     if (!targetWord || hintsUsed >= MAX_HINTS || gameOver) return;
@@ -140,14 +132,6 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
     setMessage(`💡 Position ${randomIndex + 1}: ${targetWord.word[randomIndex]}`);
     setTimeout(() => setMessage(''), 3000);
   };
-
-  if (!targetWord) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-gray-500">Loading game...</div>
-      </div>
-    );
-  }
 
   const results = guesses.map(guess => checkGuess(guess, targetWord.word));
 
