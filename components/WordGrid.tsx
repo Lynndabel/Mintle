@@ -18,49 +18,69 @@ export default function WordGrid({
   revealedLetters,
   targetWord,
 }: WordGridProps) {
-  const emptyRows = maxAttempts - guesses.length - 1;
+  const emptyRows = Math.max(0, maxAttempts - guesses.length - 1);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5 w-full">
       {/* Completed guesses */}
-      {guesses.map((guess, i) => (
-        <div key={i} className="flex gap-2">
-          {guess.split('').map((letter, j) => (
-            <div
-              key={j}
-              className={`w-14 h-14 flex items-center justify-center text-2xl font-bold rounded-lg ${
-                results[i][j] === 'correct'
-                  ? 'bg-green-500 text-white'
-                  : results[i][j] === 'present'
-                  ? 'bg-yellow-500 text-white'
-                  : 'bg-gray-400 text-white'
-              }`}
-            >
-              {letter.toUpperCase()}
-            </div>
-          ))}
+      {guesses.map((guess, rowIndex) => (
+        <div key={`guess-${rowIndex}`} className="flex gap-1.5 justify-center">
+          {guess.split('').map((letter, colIndex) => {
+            const status = results[rowIndex][colIndex];
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={`
+                  w-12 h-12 sm:w-14 sm:h-14 
+                  flex items-center justify-center 
+                  text-xl sm:text-2xl font-black 
+                  rounded-lg 
+                  transition-all duration-300
+                  ${status === 'correct' 
+                    ? 'bg-green-500 text-white scale-105 shadow-lg' 
+                    : status === 'present' 
+                    ? 'bg-yellow-500 text-white' 
+                    : 'bg-gray-400 text-white'
+                  }
+                `}
+                style={{
+                  animationDelay: `${colIndex * 100}ms`,
+                }}
+              >
+                {letter.toUpperCase()}
+              </div>
+            );
+          })}
         </div>
       ))}
 
-      {/* Current guess row */}
+      {/* Current guess row (active input) */}
       {guesses.length < maxAttempts && (
-        <div className="flex gap-2">
-          {Array.from({ length: targetLength }).map((_, i) => {
-            const letter = currentGuess[i];
-            const isRevealed = revealedLetters.has(i);
+        <div className="flex gap-1.5 justify-center">
+          {Array.from({ length: targetLength }).map((_, colIndex) => {
+            const letter = currentGuess[colIndex];
+            const isRevealed = revealedLetters.has(colIndex);
             
             return (
               <div
-                key={i}
-                className={`w-14 h-14 flex items-center justify-center text-2xl font-bold rounded-lg border-2 ${
-                  isRevealed
-                    ? 'bg-blue-100 border-blue-500 text-blue-800'
+                key={`current-${colIndex}`}
+                className={`
+                  w-12 h-12 sm:w-14 sm:h-14 
+                  flex items-center justify-center 
+                  text-xl sm:text-2xl font-black 
+                  rounded-lg 
+                  border-2 
+                  transition-all duration-200
+                  ${isRevealed
+                    ? 'bg-blue-100 border-blue-500 text-blue-800 shadow-md' 
                     : letter
-                    ? 'border-gray-400 bg-white'
-                    : 'border-gray-300 bg-white'
-                }`}
+                    ? 'border-purple-500 bg-purple-50 text-purple-900 scale-105'
+                    : 'border-gray-300 bg-white text-gray-400'
+                  }
+                  ${letter && !isRevealed ? 'animate-pop' : ''}
+                `}
               >
-                {isRevealed ? targetWord[i] : letter?.toUpperCase() || ''}
+                {isRevealed ? targetWord[colIndex] : letter?.toUpperCase() || ''}
               </div>
             );
           })}
@@ -68,12 +88,12 @@ export default function WordGrid({
       )}
 
       {/* Empty rows */}
-      {Array.from({ length: emptyRows }).map((_, i) => (
-        <div key={`empty-${i}`} className="flex gap-2">
-          {Array.from({ length: targetLength }).map((_, j) => (
+      {Array.from({ length: emptyRows }).map((_, rowIndex) => (
+        <div key={`empty-${rowIndex}`} className="flex gap-1.5 justify-center">
+          {Array.from({ length: targetLength }).map((_, colIndex) => (
             <div
-              key={j}
-              className="w-14 h-14 flex items-center justify-center text-2xl font-bold rounded-lg border-2 border-gray-300 bg-white"
+              key={`${rowIndex}-${colIndex}`}
+              className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-lg border-2 border-gray-200 bg-gray-50"
             />
           ))}
         </div>
