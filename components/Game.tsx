@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getDailyWords, checkGuess, WordData } from '@/lib/words';
+import { getDailyWords, checkGuess } from '@/lib/words';
 import { useContract } from '@/hooks/useContract';
 import WordGrid from './WordGrid';
 import Keyboard from './Keyboard';
@@ -40,11 +40,6 @@ export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
 
   const dailyWords = useMemo(() => getDailyWords(new Date()), []);
   const targetWord = useMemo(() => dailyWords[difficulty], [dailyWords, difficulty]);
-
-  // Reset game state when difficulty changes
-  useEffect(() => {
-    resetGameState();
-  }, [difficulty, resetGameState]);
 
   const submitGuess = useCallback(async () => {
     if (!targetWord) return;

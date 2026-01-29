@@ -159,6 +159,7 @@ export default function Home() {
           ) : (
             /* Game View */
             <Game 
+              key={difficulty}
               difficulty={difficulty} 
               onBackToDifficulty={backToDifficulty}
             />
