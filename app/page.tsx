@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import sdk from '@farcaster/frame-sdk';
+import { sdk } from '@farcaster/miniapp-sdk';
 import Game from '@/components/Game';
 import Leaderboard from '@/components/Leaderboard';
 import { Trophy, Target, Flame, Crown } from 'lucide-react';
@@ -20,7 +20,10 @@ export default function Home() {
     const load = async () => {
       try {
         const context = await sdk.context;
-        sdk.actions.ready();
+        if (context) {
+          setIsSDKLoaded(true);
+        }
+        await sdk.actions.ready();
         setIsSDKLoaded(true);
       } catch (error) {
         console.log('Running outside Farcaster, continuing anyway');
