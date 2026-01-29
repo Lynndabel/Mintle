@@ -5,16 +5,17 @@ import { getDailyWords, checkGuess, WordData } from '@/lib/words';
 import { useContract } from '@/hooks/useContract';
 import WordGrid from './WordGrid';
 import Keyboard from './Keyboard';
-import { Trophy, Zap, HelpCircle, RotateCcw } from 'lucide-react';
+import { Trophy, Zap, HelpCircle, RotateCcw, ArrowLeft } from 'lucide-react';
 
 interface GameProps {
   difficulty: 'easy' | 'medium' | 'hard';
+  onBackToDifficulty: () => void;
 }
 
 const MAX_ATTEMPTS = 6;
 const MAX_HINTS = 3;
 
-export default function Game({ difficulty }: GameProps) {
+export default function Game({ difficulty, onBackToDifficulty }: GameProps) {
   const [targetWord, setTargetWord] = useState<WordData | null>(null);
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
@@ -34,6 +35,10 @@ export default function Game({ difficulty }: GameProps) {
     setTargetWord(word);
     
     // Reset game state when difficulty changes
+    resetGameState();
+  }, [difficulty]);
+
+  const resetGameState = () => {
     setGuesses([]);
     setCurrentGuess('');
     setGameOver(false);
@@ -41,7 +46,8 @@ export default function Game({ difficulty }: GameProps) {
     setHintsUsed(0);
     setRevealedLetters(new Set());
     setMessage('');
-  }, [difficulty]);
+    setShake(false);
+  };
 
   // Keyboard event listener
   useEffect(() => {
@@ -135,16 +141,6 @@ export default function Game({ difficulty }: GameProps) {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const resetGame = () => {
-    setGuesses([]);
-    setCurrentGuess('');
-    setGameOver(false);
-    setWon(false);
-    setHintsUsed(0);
-    setRevealedLetters(new Set());
-    setMessage('');
-  };
-
   if (!targetWord) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -173,35 +169,33 @@ export default function Game({ difficulty }: GameProps) {
       </div>
 
       {/* Message */}
-      {message && (
-        <div className={`w-full px-4 py-3 rounded-lg text-sm font-medium text-center transition-all ${
-          won 
-            ? 'bg-green-50 border-2 border-green-500 text-green-800' 
-            : gameOver 
-            ? 'bg-red-50 border-2 border-red-500 text-red-800'
-            : 'bg-blue-50 border-2 border-blue-300 text-blue-800'
-        } ${shake ? 'animate-shake' : ''}`}>
+      {message && !gameOver && (
+        <div className={`w-full px-4 py-3 rounded-lg text-sm font-medium text-center transition-all bg-blue-50 border-2 border-blue-300 text-blue-800 ${shake ? 'animate-shake' : ''}`}>
           {message}
         </div>
       )}
 
       {/* Hint Display */}
-      <div className="w-full px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-900">
-        💡 <strong>Hint:</strong> {targetWord.hint}
-      </div>
+      {!gameOver && (
+        <div className="w-full px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-900">
+          💡 <strong>Hint:</strong> {targetWord.hint}
+        </div>
+      )}
 
-      {/* Word Grid */}
-      <WordGrid
-        guesses={guesses}
-        currentGuess={currentGuess}
-        targetLength={targetWord.word.length}
-        maxAttempts={MAX_ATTEMPTS}
-        results={results}
-        revealedLetters={revealedLetters}
-        targetWord={targetWord.word}
-      />
+      {/* Word Grid - Only show when game is active */}
+      {!gameOver && (
+        <WordGrid
+          guesses={guesses}
+          currentGuess={currentGuess}
+          targetLength={targetWord.word.length}
+          maxAttempts={MAX_ATTEMPTS}
+          results={results}
+          revealedLetters={revealedLetters}
+          targetWord={targetWord.word}
+        />
+      )}
 
-      {/* Keyboard */}
+      {/* Keyboard - Only show when game is active */}
       {!gameOver && (
         <Keyboard 
           onKeyPress={handleKeyPress} 
@@ -211,9 +205,9 @@ export default function Game({ difficulty }: GameProps) {
         />
       )}
 
-      {/* Actions */}
-      <div className="flex gap-3 w-full px-2">
-        {!gameOver ? (
+      {/* Actions - Only show hint button when game is active */}
+      {!gameOver && (
+        <div className="flex gap-3 w-full px-2">
           <button
             onClick={useHint}
             disabled={hintsUsed >= MAX_HINTS}
@@ -221,52 +215,65 @@ export default function Game({ difficulty }: GameProps) {
           >
             💡 Use Hint ({MAX_HINTS - hintsUsed} left)
           </button>
-        ) : (
-          <button
-            onClick={resetGame}
-            className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
-          >
-            <RotateCcw className="w-5 h-5" />
-            Play Again
-          </button>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Game Over */}
+      {/* Game Over State - Replace everything with victory/loss card */}
       {gameOver && (
-        <div className={`w-full p-6 rounded-2xl shadow-xl ${
-          won 
-            ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-500' 
-            : 'bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-500'
-        }`}>
-          <div className="text-center">
-            {won ? (
-              <>
-                <Trophy className="w-16 h-16 text-green-600 mx-auto mb-3" />
-                <h3 className="text-2xl font-black text-green-800 mb-2">Victory!</h3>
-                <p className="text-green-700 font-medium">
-                  Solved in {guesses.length}/{MAX_ATTEMPTS} attempts
-                </p>
-                <p className="text-green-600 text-sm mt-1">
-                  Used {hintsUsed} hint{hintsUsed !== 1 ? 's' : ''}
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="text-5xl mb-3">😔</div>
-                <h3 className="text-2xl font-black text-red-800 mb-2">Game Over</h3>
-                <p className="text-red-700 font-medium">
-                  The word was: <span className="font-black text-xl">{targetWord.word}</span>
-                </p>
-                <p className="text-red-600 text-sm mt-2">{targetWord.hint}</p>
-              </>
-            )}
+        <div className="w-full space-y-4">
+          {/* Victory/Loss Card */}
+          <div className={`w-full p-8 rounded-2xl shadow-2xl ${
+            won 
+              ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-500' 
+              : 'bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-500'
+          }`}>
+            <div className="text-center">
+              {won ? (
+                <>
+                  <Trophy className="w-20 h-20 text-green-600 mx-auto mb-4" />
+                  <h3 className="text-3xl font-black text-green-800 mb-3">Victory!</h3>
+                  <div className="text-green-700 font-medium mb-2">
+                    <div className="text-xl mb-1">Word: <span className="font-black">{targetWord.word}</span></div>
+                    <div>Solved in {guesses.length}/{MAX_ATTEMPTS} attempts</div>
+                    <div className="text-sm mt-1">Used {hintsUsed} hint{hintsUsed !== 1 ? 's' : ''}</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-6xl mb-4">😔</div>
+                  <h3 className="text-3xl font-black text-red-800 mb-3">Game Over</h3>
+                  <p className="text-red-700 font-medium mb-2">
+                    The word was: <span className="font-black text-2xl block mt-2">{targetWord.word}</span>
+                  </p>
+                  <p className="text-red-600 text-sm mt-3 italic">{targetWord.hint}</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-3 w-full">
+            <button
+              onClick={resetGameState}
+              className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-5 h-5" />
+              Play Same Difficulty Again
+            </button>
+            
+            <button
+              onClick={onBackToDifficulty}
+              className="w-full bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Choose Different Difficulty
+            </button>
           </div>
         </div>
       )}
 
       {isPending && (
-        <div className="text-sm text-gray-500">Saving to blockchain...</div>
+        <div className="text-sm text-gray-500 animate-pulse">Saving to blockchain...</div>
       )}
     </div>
   );
