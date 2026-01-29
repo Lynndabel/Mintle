@@ -194,7 +194,7 @@ export const BLOCKCHAIN_WORDS: WordData[] = [
   { word: 'CALLDATA', difficulty: 'hard', hint: 'Transaction input data' },
   { word: 'STATELESS', difficulty: 'hard', hint: 'No state storage needed' },
   { word: 'WITNESS', difficulty: 'hard', hint: 'State proof data' },
-  { word: 'VERKLEWITNESS', difficulty: 'hard', hint: 'Compact state proof' },
+//   { word: 'VERKLEWITNESS', difficulty: 'hard', hint: 'Compact state proof' },
   { word: 'PROPOSER', difficulty: 'hard', hint: 'Block creator' },
   { word: 'BUILDER', difficulty: 'hard', hint: 'Block assembler' },
   { word: 'SEARCHER', difficulty: 'hard', hint: 'MEV opportunity finder' },
