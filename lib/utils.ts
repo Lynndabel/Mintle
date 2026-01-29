@@ -14,16 +14,16 @@ export function getWordKey(difficulty: 'easy' | 'medium' | 'hard'): string {
   return `wordle-${difficulty}-${getTodayString()}`;
 }
 
-export function saveGameState(difficulty: 'easy' | 'medium' | 'hard', state: any) {
+export function saveGameState<T>(difficulty: 'easy' | 'medium' | 'hard', state: T) {
   if (typeof window !== 'undefined') {
     localStorage.setItem(getWordKey(difficulty), JSON.stringify(state));
   }
 }
 
-export function loadGameState(difficulty: 'easy' | 'medium' | 'hard') {
+export function loadGameState<T>(difficulty: 'easy' | 'medium' | 'hard'): T | null {
   if (typeof window !== 'undefined') {
     const saved = localStorage.getItem(getWordKey(difficulty));
-    return saved ? JSON.parse(saved) : null;
+    return saved ? (JSON.parse(saved) as T) : null;
   }
   return null;
 }
