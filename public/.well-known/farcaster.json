@@ -1,0 +1,38 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Blockchain Wordle",
+    "iconUrl": "https://eldrow-ecru.vercel.app/icon.png",
+    "homeUrl": "https://eldrow-ecru.vercel.app",
+    "imageUrl": "https://eldrow-ecru.vercel.app/og-icon.png",
+    "buttonTitle": "🎮 Play",
+    "splashImageUrl": "https://eldrow-ecru.vercel.app/og-imagee.png",
+    "splashBackgroundColor": "#667eea",
+    "subtitle": "Guess blockchain words daily",
+    "description": "Test your crypto knowledge with 3 daily word puzzles. Easy, Medium, and Hard modes with on-chain progress tracking on Base.",
+    "screenshotUrls": [
+      "https://eldrow-ecru.vercel.app/screenshot.png",
+      "https://eldrow-ecru.vercel.app/screenshot.png",
+      "https://eldrow-ecru.vercel.app/screenshot.png"
+    ],
+    "primaryCategory": "games",
+    "tags": [
+      "wordle",
+      "blockchain",
+      "crypto",
+      "puzzle",
+      "daily"
+    ],
+    "heroImageUrl": "https://eldrow-ecru.vercel.app/og-imagee.png",
+    "tagline": "Daily blockchain word puzzles",
+    "ogTitle": "Blockchain Wordle",
+    "ogDescription": "Guess blockchain words. Build your streak on Base.",
+    "ogImageUrl": "https://eldrow-ecru.vercel.app/og-image.png",
+    "requiredChains": [
+      "eip155:8453"
+    ],
+    "requiredCapabilities": [
+      "wallet.getEthereumProvider"
+    ]
+  }
+}
