@@ -1,4 +1,9 @@
 {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjExMDYwMDQsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgxQ2RkYTVmNjUyNDZmYjlDZjU4YzNjNkM3MkYzQWFkMzAxNDUwNTJEIn0",
+    "payload": "eyJkb21haW4iOiJlbGRyb3ctZWNydS52ZXJjZWwuYXBwIn0",
+    "signature": "86rzAYdJCT1JG0TDEUSEf/OYQrZw/g1AXDkLN4M/ffQb6Imb+cxChXekVSWDrUfGgMvNP/uef29vKA8GhaRlLxw="
+  },
   "miniapp": {
     "version": "1",
     "name": "Blockchain Wordle",
